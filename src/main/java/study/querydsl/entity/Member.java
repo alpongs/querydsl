@@ -14,6 +14,7 @@ import javax.persistence.*;
 public class Member {
 
     @Id @GeneratedValue
+    @Column(name = "member_id")
     private Long id;
     private String username;
     private int age;

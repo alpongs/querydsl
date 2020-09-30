@@ -5,10 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +16,9 @@ import java.util.List;
 @ToString(of = {"id", "name"})
 public class Team {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
+    @Column(name = "team_id")
     private Long id;
     private String name;
     @OneToMany(mappedBy = "team")
