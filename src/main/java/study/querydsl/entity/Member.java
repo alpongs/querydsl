@@ -16,6 +16,7 @@ public class Member {
     @Id @GeneratedValue
     @Column(name = "member_id")
     private Long id;
+    @Column(nullable = false)
     private String username;
     private int age;
     @ManyToOne(fetch = FetchType.LAZY)

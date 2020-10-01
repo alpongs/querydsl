@@ -1,6 +1,7 @@
 package study.querydsl.entity;
 
-import org.assertj.core.api.Assertions;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Commit;
@@ -9,6 +10,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Transactional
@@ -18,8 +22,8 @@ class MemberTest {
     @PersistenceContext
     EntityManager em;
 
-    @Test
-    void testEntity() {
+    @BeforeEach
+    public void before() {
         Team teamA = new Team("teamA");
         Team teamB = new Team("teamB");
 
@@ -40,6 +44,10 @@ class MemberTest {
 
         em.flush();
         em.clear();
+    }
+
+    @Test
+    void testEntity() {
 
         List<Member> fromMembers = em.createQuery("select m from Member m", Member.class)
                 .getResultList();
@@ -49,6 +57,40 @@ class MemberTest {
             System.out.println("fromMember.getTeam() = " + fromMember.getTeam());   // 지연 로딩 동작 확인용.
         }
 
-        Assertions.assertThat(fromMembers.size()).isEqualTo(5);
+        assertThat(fromMembers.size()).isEqualTo(5);
+    }
+
+    @Test
+    void startJPQL() {
+        // find("member1")
+        String qlString =
+                "select m from Member m " +
+                        "where m.username = :username";
+
+        Member findMember = em.createQuery(qlString, Member.class)
+                .setParameter("username", "member1")
+                .getSingleResult();
+
+        assertThat(findMember.getUsername()).isEqualTo("member1");
+        assertThat(findMember.getAge()).isEqualTo(10);
+    }
+
+    @Test
+    void startQuerydsl() {
+
+        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+        QMember m = new QMember("m");
+        Member findMember = queryFactory
+                .select(m)
+                .from(m)
+                .where(m.username.eq("member1"))
+                .fetchOne();
+
+        Optional<Member> optionalMember = Optional.ofNullable(findMember);
+        if (optionalMember.isPresent()) {
+            Member member = optionalMember.get();
+            assertThat(member.getUsername()).isEqualTo("member1");
+        }
+
     }
 }
