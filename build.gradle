@@ -53,7 +53,7 @@ sourceSets {
 	main.java.srcDir querydslDir
 }
 
-configurations {ㅏ
+configurations {
 	querydsl.extendsFrom compileClasspath
 }
 
