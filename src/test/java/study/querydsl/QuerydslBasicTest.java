@@ -1,5 +1,6 @@
 package study.querydsl;
 
+import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -101,5 +102,61 @@ class QuerydslBasicTest {
         assertThat(findMember.getUsername()).isEqualTo("member1");
     }
 
+    @Test
+    void queryPrint() {
+        List<Member> members = queryFactory
+                .selectFrom(member)
+                .where(
+//                        member.username.eq("member1")             // username = "member1"
+//                        member.username.ne("member1")             // username != "member1"
+//                        member.username.eq("member1").not()       // username != "member1"
+//                        member.username.isNotNull()
+//                        member.age.in(10, 20)
+//                        member.age.notIn(10, 20)
+//                        member.age.between(10, 40)
+//                        member.age.goe(20)
+//                        member.age.gt(20)
+//                        member.age.loe(20)
+                        member.age.lt(20)
 
+
+                )
+                .fetch();
+        assertNotNull(members);
+
+        for (Member member1 : members) {
+            System.out.println("member1 = " + member1);
+        }
+    }
+
+    @Test
+    void simpleFetchTest() {
+        // List
+        List<Member> memberList = queryFactory
+                .selectFrom(member)
+                .fetch();
+
+        Member fetchOneMember = queryFactory
+                .selectFrom(member)
+                .where(member.username.eq("member1"))
+                .fetchOne();
+
+        Member fetchFirstMember = queryFactory
+                .selectFrom(QMember.member)
+                .fetchFirst();
+
+        QueryResults<Member> results = queryFactory
+                .selectFrom(member)
+                .fetchResults();
+
+        List<Member> getMembers = results.getResults();
+        for (Member getMember : getMembers) {
+            System.out.println("getMember = " + getMember);
+        }
+        assertNotNull(getMembers);
+        assertThat(getMembers.size()).isEqualTo(6);
+        System.out.println("results.getLimits = " + results.getLimit());
+        System.out.println("results.getOffset() = " + results.getOffset());
+        System.out.println("results.getTotal() = " + results.getTotal());
+    }
 }
