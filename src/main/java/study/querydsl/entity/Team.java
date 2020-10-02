@@ -12,7 +12,7 @@ import java.util.List;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)  // 기본 생성자 막고 싶은데, JPA 스팩상 PROTECTED 열어두어야 함.
 @ToString(of = {"id", "name"})
 public class Team {
 
@@ -20,7 +20,9 @@ public class Team {
     @GeneratedValue
     @Column(name = "team_id")
     private Long id;
+
     private String name;
+
     @OneToMany(mappedBy = "team")
     List<Member> memberList = new ArrayList<>();
 
