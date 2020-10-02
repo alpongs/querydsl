@@ -159,4 +159,29 @@ class QuerydslBasicTest {
         System.out.println("results.getOffset() = " + results.getOffset());
         System.out.println("results.getTotal() = " + results.getTotal());
     }
+
+    /**
+     * 회원 정렬 순서.
+     * 1. 회원 나이 내림차순(desc)
+     * 2. 회원 이름 오름차순(asc)
+     * 단 2에서 회원 이름이 없으면 마지막에 출력 (nulls last)
+     */
+    @Test
+    void sort() {
+        em.persist(new Member(null, 90));
+        em.persist(new Member("member7", 90));
+        em.persist(new Member("member8", 90));
+
+        List<Member> members = queryFactory
+                .selectFrom(member)
+                .where(member.age.eq(90))
+                .orderBy(member.age.desc(), member.username.asc().nullsLast())
+                .fetch();
+
+        for (Member member1 : members) {
+            System.out.println("member1 = " + member1);
+        }
+
+        assertThat(members.size()).isEqualTo(3);
+    }
 }
