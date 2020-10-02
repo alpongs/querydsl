@@ -16,10 +16,12 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static study.querydsl.entity.QMember.member;
 
 @SpringBootTest
 @Transactional
-public class QuerydslBasicTest {
+class QuerydslBasicTest {
 
     @PersistenceContext
     EntityManager em;
@@ -52,9 +54,6 @@ public class QuerydslBasicTest {
         em.persist(member4);
         em.persist(member5);
         em.persist(member6);
-
-        em.flush();
-        em.clear();
     }
 
     @Test
@@ -67,6 +66,7 @@ public class QuerydslBasicTest {
                 .where(m.username.eq("member1"))
                 .fetchOne();
 
+        assertNotNull(findMember);
         assertThat(findMember.getUsername()).isEqualTo("member1");
     }
 
@@ -88,4 +88,18 @@ public class QuerydslBasicTest {
             System.out.println("member = " + member);
         }
     }
+
+    @Test
+    void startQuerydslStaticImport() {
+        Member findMember = queryFactory
+                .select(member)
+                .from(member)
+                .where(member.username.eq("member1"))
+                .fetchOne();
+
+        assertNotNull(findMember);
+        assertThat(findMember.getUsername()).isEqualTo("member1");
+    }
+
+
 }
