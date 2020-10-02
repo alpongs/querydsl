@@ -1,6 +1,7 @@
 package study.querydsl;
 
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -211,5 +212,25 @@ class QuerydslBasicTest {
         assertThat(results.getTotal()).isEqualTo(6);
         assertThat(results.getOffset()).isZero();
         assertThat(results.getLimit()).isEqualTo(4);
+    }
+
+    @Test
+    void aggregation() {
+        List<Tuple> fetch = queryFactory
+                .select(
+                        member.count(),
+                        member.age.sum(),
+                        member.age.min(),
+                        member.age.max(),
+                        member.age.avg())
+                .from(member)
+                .fetch();
+
+        Tuple tuple = fetch.get(0);
+        assertThat(tuple.get(member.count())).isEqualTo(6);
+        assertThat(tuple.get(member.age.sum())).isEqualTo(210);
+        assertThat(tuple.get(member.age.min())).isEqualTo(10);
+        assertThat(tuple.get(member.age.max())).isEqualTo(60);
+        assertThat(tuple.get(member.age.avg())).isEqualTo(35);
     }
 }
