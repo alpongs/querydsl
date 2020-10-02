@@ -184,4 +184,32 @@ class QuerydslBasicTest {
 
         assertThat(members.size()).isEqualTo(3);
     }
+
+    @Test
+    void paging1() {
+        List<Member> members = queryFactory
+                .selectFrom(member)
+                .orderBy(member.username.desc())
+                .offset(0)                          // 0부터 시작(zero index)
+                .limit(4)                           // 최대 개수 조회.
+                .fetch();
+
+        assertThat(members.size()).isEqualTo(4);
+    }
+
+    @Test
+    void paging2() {
+        QueryResults<Member> results = queryFactory
+                .selectFrom(member)
+                .orderBy(member.username.desc())
+                .offset(0)
+                .limit(4)
+                .fetchResults();
+
+        List<Member> members = results.getResults();
+        assertThat(members.size()).isEqualTo(4);
+        assertThat(results.getTotal()).isEqualTo(6);
+        assertThat(results.getOffset()).isZero();
+        assertThat(results.getLimit()).isEqualTo(4);
+    }
 }
