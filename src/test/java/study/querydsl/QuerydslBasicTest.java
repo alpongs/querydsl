@@ -20,6 +20,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static study.querydsl.entity.QMember.member;
+import static study.querydsl.entity.QTeam.team;
 
 @SpringBootTest
 @Transactional
@@ -232,5 +233,31 @@ class QuerydslBasicTest {
         assertThat(tuple.get(member.age.min())).isEqualTo(10);
         assertThat(tuple.get(member.age.max())).isEqualTo(60);
         assertThat(tuple.get(member.age.avg())).isEqualTo(35);
+    }
+
+    @Test
+    void groupBy() {
+        List<Tuple> result = queryFactory
+                .select(team.name, member.age.avg())    // 팀 이름별 GroupBy, Name, 팀 평균 나이.
+                .from(member)
+                .join(member.team, team)                // Member.팀 팀 JOIN
+                .groupBy(team.name)                     // 어떤걸루 그룹핑할지 정리.
+                .fetch();
+
+        assertNotNull(result);
+        assertThat(result.size()).isEqualTo(2);         // 두개의 팀으로 분리.
+    }
+
+    @Test
+    void join() {
+        List<Member> teamA = queryFactory
+                .selectFrom(member)
+                .join(member.team, team)                // join, innerJoin 내부조인.
+                .where(team.name.eq("teamA"))
+                .fetch();
+
+        assertThat(teamA)
+                .extracting("username")
+                .containsExactly("member1", "member2", "member3");
     }
 }
