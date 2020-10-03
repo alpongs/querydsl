@@ -260,4 +260,56 @@ class QuerydslBasicTest {
                 .extracting("username")
                 .containsExactly("member1", "member2", "member3");
     }
+
+    /**
+     * 세타 조인(연관관계가 없는 필드로 조인)
+     * 회원의 이름이 팀 이름과 같은 회원 조회.
+     * 일명 cross join
+     */
+    @Test
+    void theta_join() {
+        em.persist(new Member("teamA"));
+        em.persist(new Member("teamB"));
+
+        //select member1
+        //from Member member1, Team team
+        //where member1.username = team.name
+        List<Member> members = queryFactory
+                .select(member)
+                .from(member, team)
+                .where(member.username.eq(team.name))
+                .fetch();
+
+
+        for (Member member1 : members) {
+            System.out.println("===========================================================================");
+            System.out.println("member1 = " + member1);
+            System.out.println("===========================================================================");
+        }
+
+        assertThat(members)
+                .extracting("username")
+                .containsExactly("teamA", "teamB");
+    }
+
+    /**
+     * 예) 회원과 팀을 조인하면서, 팀 이름이 teamA 팀만 조인, 회원은 모두 조회.
+     * JPQL : select m, t from member m LEFT JOIN m.team t on t.name = 'teamA'
+     * SQL : select m.*, t.* from Member m LEFT JOIN Team t on m.TEAM_ID = t.id and t.name = 'teamA'
+     */
+    @Test
+    void join_on_filtering() {
+        List<Tuple> teamA = queryFactory
+                .select(member, team)
+                .from(member)
+                .leftJoin(member.team, team).on(team.name.eq("teamA"))
+//                .leftJoin(member.team, team)
+//                .where(team.name.eq("teamA"))
+                .fetch();
+
+        for (Tuple tuple : teamA) {
+            System.out.println("tuple = " + tuple);
+        }
+        assertThat(teamA.size()).isEqualTo(6);
+    }
 }
